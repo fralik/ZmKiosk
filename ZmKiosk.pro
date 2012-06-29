@@ -11,12 +11,15 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         mainwindow.cpp \
-    appsettings.cpp
+    appsettings.cpp \
+    settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
-    appsettings.h
+    appsettings.h \
+    settingsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsdialog.ui
 TRANSLATIONS    += translations/zmkiosk_ru.ts \
                     translations/zmkiosk_en.ts
 OTHER_FILES += translations/zmkiosk_ru.qm \
