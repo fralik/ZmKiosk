@@ -1,8 +1,10 @@
 #include <QtGui/QApplication>
 #include <QtCore/QSettings>
-//#include <QTranslator>
-//#include <QLocale>
+#include <QTranslator>
+#include <QLocale>
 #include <QTextCodec>
+#include <QLibraryInfo>
+#include <QDebug>
 
 #include "mainwindow.h"
 
@@ -37,9 +39,28 @@ int main(int argc, char *argv[])
         }
     }
 
-    //QTranslator translator;
-    //translator.load("zmkiosk_" + QLocale::system().name(), ":/translations");
-    //a.installTranslator(());
+    //QString locale = QLocale::system().name();
+    QString locale = "ru_RU";
+    QTranslator qtTranslator;
+    QString qtFilename = "qt_" + locale;
+    QString appTranslationPath = a.applicationDirPath() + "/translations";
+    if (!qtTranslator.load(qtFilename, appTranslationPath))
+    {
+        qDebug() << "Failed to load translation" << qtFilename << "from " << appTranslationPath;
+        if (!qtTranslator.load(qtFilename, QLibraryInfo::location(QLibraryInfo::TranslationsPath)))
+        {
+            qDebug() << "Failed to load translation" << qtFilename << "from " << QLibraryInfo::location(QLibraryInfo::TranslationsPath);
+        }
+    }
+    a.installTranslator(&qtTranslator);
+
+    QTranslator translator;
+    QString appFilename = "zmkiosk_" + locale;
+    if (!translator.load(appFilename, appTranslationPath))
+    {
+        qDebug() << "Failed to load translation" << appFilename << "from " << appTranslationPath;
+    }
+    a.installTranslator(&translator);
 
     MainWindow w;
     w.show();

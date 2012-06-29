@@ -49,7 +49,7 @@ MainWindow::~MainWindow()
 void MainWindow::_checkCredentials()
 {
     bool ok;
-    QString text = QInputDialog::getText(this, tr("Unlock"), tr("Password:"),
+    QString text = QInputDialog::getText(this, tr("#unlock_title"), tr("#pwd_prompt"),
                                          QLineEdit::Password, QString(), &ok);
     if (ok && !text.isEmpty())
     {
@@ -145,7 +145,7 @@ void MainWindow::_resetAuth()
 
 void MainWindow::on_btnRestart_clicked()
 {
-    if (QMessageBox::question(this, QString::fromLocal8Bit("Перезагрузка компьютера"), QString::fromLocal8Bit("Уверены?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
+    if (QMessageBox::question(this, tr("#reboot"), tr("#reboot_confirmation_question"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes) == QMessageBox::Yes)
     {
         system("sudo /sbin/reboot");
     }

@@ -20,7 +20,7 @@
       <item>
        <widget class="QPushButton" name="btnRestart">
         <property name="text">
-         <string>Перезагрузить компьютер</string>
+         <string>#reboot</string>
         </property>
        </widget>
       </item>
