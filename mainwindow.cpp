@@ -11,12 +11,16 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 
+#include "settingsdialog.h"
+
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , _locked(true)
+    , _settingsDialog(NULL)
 {
     ui->setupUi(this);
+    setGeometry(50, 50, 800, 600);
     setWindowState(Qt::WindowFullScreen);
 
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PluginsEnabled, true);
@@ -32,13 +36,26 @@ MainWindow::MainWindow(QWidget *parent) :
     QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, true);
 
     connect(ui->webView, SIGNAL(loadFinished(bool)), this, SLOT(_loadFinished(bool)));
-    ui->webView->load(QUrl(_appSettings.host()));
+
+    if (_appSettings.isPresent())
+    {
+        ui->webView->load(QUrl(_appSettings.host()));
+        ui->webView->show();
+
+        if (_appSettings.isLockable())
+        {
+            ui->btnSettings->hide();
+        }
+    }
+    else
+    {
+        _locked = false;
+        on_btnSettings_clicked();
+    }
 
     _validityTimer.setSingleShot(true);
     _validityTimer.setInterval(300000); // 5 minutes
     connect(&_validityTimer, SIGNAL(timeout()), this, SLOT(_resetAuth()));
-
-    ui->webView->show();
 }
 
 MainWindow::~MainWindow()
@@ -56,8 +73,11 @@ void MainWindow::_checkCredentials()
         if (text == _appSettings.unlockPassword())
         {
             _locked = false;
+            ui->btnSettings->show();
+
             ToggleFullView();
-            _validityTimer.start();
+            if (_appSettings.isLockable())
+                _validityTimer.start();
         }
     }
 }
@@ -128,12 +148,10 @@ void MainWindow::ToggleFullView()
     if (windowState() == Qt::WindowFullScreen)
     {
         setWindowState(Qt::WindowNoState);
-        _locked = false;
     }
     else
     {
         setWindowState(Qt::WindowFullScreen);
-        _locked = true;
     }
 }
 
@@ -141,6 +159,24 @@ void MainWindow::_resetAuth()
 {
     _locked = true;
     ToggleFullView();
+    ui->btnSettings->hide();
+}
+
+void MainWindow::_settingsChanged()
+{
+    if (_appSettings.isPresent())
+    {
+        qDebug() << "Settings changed, going to load" << _appSettings.host();
+        ui->webView->load(QUrl(_appSettings.host()));
+        ui->webView->show();
+
+        _locked = _appSettings.isLockable();
+        ui->btnSettings->setVisible(!_locked);
+    }
+    else
+    {
+        on_btnSettings_clicked();
+    }
 }
 
 void MainWindow::on_btnRestart_clicked()
@@ -149,4 +185,15 @@ void MainWindow::on_btnRestart_clicked()
     {
         system("sudo /sbin/reboot");
     }
+}
+
+void MainWindow::on_btnSettings_clicked()
+{
+    if (!_settingsDialog)
+    {
+        _settingsDialog = new SettingsDialog(&_appSettings, this);
+        connect(_settingsDialog, SIGNAL(settingsChanged()), this, SLOT(_settingsChanged()));
+    }
+
+    _settingsDialog->showDialog();
 }

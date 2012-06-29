@@ -12,6 +12,7 @@ class MainWindow;
 
 class QInputDialog;
 class QKeyEvent;
+class SettingsDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -25,6 +26,7 @@ protected slots:
     void _checkCredentials();
     void _loadFinished(bool ok);
     void _resetAuth();
+    void _settingsChanged();
 
 protected:
     void keyPressEvent(QKeyEvent* event);
@@ -33,11 +35,14 @@ protected:
 private slots:
     void on_btnRestart_clicked();
 
+    void on_btnSettings_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool _locked;
     AppSettings _appSettings;
     QTimer _validityTimer;
+    SettingsDialog* _settingsDialog;
 };
 
 #endif // MAINWINDOW_H

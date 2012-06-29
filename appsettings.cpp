@@ -9,10 +9,23 @@ AppSettings::AppSettings()
 QString AppSettings::host() const
 {
     QString host = _settings.value("host").toString();
-    if (host.at(host.length() - 1) != QChar('/'))
+    if (!host.isEmpty() && (host.at(host.length() - 1) != QChar('/')))
         host += "/";
 
     return host;
+}
+
+void AppSettings::setHost(const QString& host)
+{
+    if (host.isEmpty())
+        return;
+
+    QString actualHost = host;
+    if (!actualHost.contains("http://") && !actualHost.contains("https://"))
+    {
+        actualHost = "http://" + actualHost;
+    }
+    _settings.setValue("host", actualHost);
 }
 
 QString AppSettings::user() const
@@ -22,29 +35,55 @@ QString AppSettings::user() const
 
 void AppSettings::setUser(const QString& user)
 {
+    if (user.isEmpty())
+        return;
+
     _settings.setValue("user", user);
 }
 
 QString AppSettings::password() const
 {
-    QString pass = _decode(_settings.value("password").toString());
-    return pass;
+    return _decode(_settings.value("password").toString());
 }
 
 void AppSettings::setPassword(const QString& pass)
 {
+    if (pass.isEmpty())
+        return;
+
     QString encodedPass = _encode(pass);
     _settings.setValue("password", encodedPass);
 }
 
-QString AppSettings::unlockPassword()
+QString AppSettings::unlockPassword() const
 {
     return _decode(_settings.value("ath").toString());
 }
 
 void AppSettings::setUnlockPassword(const QString& pass)
 {
+    if (pass.isEmpty())
+        return;
+
     _settings.setValue("ath", _encode(pass));
+}
+
+bool AppSettings::isLockable() const
+{
+    return _settings.value("lockable", true).toBool();
+}
+
+void AppSettings::setLockable(bool lockable)
+{
+    _settings.setValue("lockable", lockable);
+}
+
+bool AppSettings::isPresent() const
+{
+    bool hostIsEmpty = host().isEmpty();
+    bool userIsEmpty = user().isEmpty();
+    bool passwordIsEmpty = password().isEmpty();
+    return !(hostIsEmpty || userIsEmpty || passwordIsEmpty);
 }
 
 QString AppSettings::_encode(const QString& str) const
