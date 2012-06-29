@@ -56,6 +56,8 @@ MainWindow::MainWindow(QWidget *parent) :
     _validityTimer.setSingleShot(true);
     _validityTimer.setInterval(300000); // 5 minutes
     connect(&_validityTimer, SIGNAL(timeout()), this, SLOT(_resetAuth()));
+
+    ui->webView->setFocus();
 }
 
 MainWindow::~MainWindow()
@@ -118,7 +120,7 @@ void MainWindow::_loadFinished(bool ok)
         {
             disconnect(ui->webView, SIGNAL(loadFinished(bool)), this, SLOT(_loadFinished(bool)));
 
-            QString cycleUrl = _appSettings.host() + "index.php?view=cycle_locked&group=0";
+            QString cycleUrl = _appSettings.host() + "index.php?view=montage_locked&group=0";
             ui->webView->load(cycleUrl);
         }
     }
